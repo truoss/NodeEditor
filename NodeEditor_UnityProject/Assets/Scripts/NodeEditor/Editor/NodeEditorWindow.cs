@@ -34,7 +34,10 @@ namespace NodeSystem
         public void CalculateNodeOrder()
         {
             if (Graph != null)
-                Graph.CalculateNodeOrder();
+            {
+                NodeProcessor.Graph = Graph;
+                NodeProcessor.CalculateNodeOrder();
+            }
         }
 
         NodeGraph MakeTestGraph()

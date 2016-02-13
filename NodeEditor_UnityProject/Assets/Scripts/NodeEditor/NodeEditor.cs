@@ -154,7 +154,7 @@ namespace NodeSystem
                 if (nodes[i].Inputs == null || nodes[i].Inputs.Count == 0)
                     result.Add(nodes[i]);
                 //if has no connections in input sockets
-                else if (NodeEditor.GetAllInputConnections(nodes[i]).Length == 0)
+                else if (GetAllInputConnections(nodes[i]).Length == 0)
                     result.Add(nodes[i]);
             }
 
@@ -170,7 +170,7 @@ namespace NodeSystem
                 if (nodes[i].Outputs == null || nodes[i].Outputs.Count == 0)
                     result.Add(nodes[i]);
                 //if has no connections in output sockets
-                else if (NodeEditor.GetAllOutputConnections(nodes[i]).Length == 0)
+                else if (GetAllOutputConnections(nodes[i]).Length == 0)
                     result.Add(nodes[i]);
             }
 
@@ -192,7 +192,7 @@ namespace NodeSystem
             }
 
             List<Node> tmp = new List<Node>();
-            for (int i = nodes.Count; i >= 0; i -= 1)
+            for (int i = nodes.Count-1; i >= 0; i -= 1)
             {
                 List<int> parentOrder = new List<int>();
                 tmp = new List<Node>(GetAllParentNodes(nodes[i]));

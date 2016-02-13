@@ -32,7 +32,7 @@ namespace NodeSystem
 
         public abstract void NodeGUI();
 
-        public abstract bool Perform();
+        public abstract bool Process();
 
         protected internal virtual void OnDelete() { }
 
@@ -78,7 +78,7 @@ namespace NodeSystem
         {
             for (int inCnt = 0; inCnt < Inputs.Count; inCnt++)
             {
-                if (Inputs[inCnt] == null || Inputs[inCnt].IsValueNull)
+                if (Inputs[inCnt].IsValueNull)
                     return false;
             }
             return true;
@@ -154,7 +154,7 @@ namespace NodeSystem
             }
         }
 
-        public override bool Perform()
+        public override bool Process()
         {
             if (!allInputsReady())
                 return false;
