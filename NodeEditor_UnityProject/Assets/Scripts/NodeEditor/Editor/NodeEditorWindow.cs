@@ -30,6 +30,13 @@ namespace NodeSystem
 #endif            
         }
 
+        [ContextMenu("CalcNodeOrder")]
+        public void CalculateNodeOrder()
+        {
+            if (Graph != null)
+                Graph.CalculateNodeOrder();
+        }
+
         NodeGraph MakeTestGraph()
         {
             Debug.LogWarning("MakeTestGraph");
@@ -176,9 +183,8 @@ namespace NodeSystem
                 // Check if the mouse is above our scrollview.
                 if (e.button == 2 && e.type == EventType.MouseDown && scrollViewRect.Contains(Event.current.mousePosition) && !NodeEditor.isPanning)
                     NodeEditor.isPanning = true;
-
-                if (e.button == 2 && e.type == EventType.MouseUp && NodeEditor.isPanning)
-                    NodeEditor.isPanning = false;
+                else if (e.button == 2 && e.type == EventType.MouseUp && NodeEditor.isPanning)
+                    NodeEditor.isPanning = false;                
 
                 //Debug.LogWarning(NodeEditor.isPanning);
                 if (NodeEditor.isPanning)
@@ -264,6 +270,12 @@ namespace NodeSystem
             if (GUILayout.Button("Center View"))
             {
                 Graph.scrollPos = new Vector2(NodeEditor.canvasSize.x * 0.5f, NodeEditor.canvasSize.y * 0.5f);
+            }
+
+            GUI.enabled = Graph != null;
+            if (GUILayout.Button("Calc Order"))
+            {
+                CalculateNodeOrder();
             }
             GUILayout.EndArea();
 

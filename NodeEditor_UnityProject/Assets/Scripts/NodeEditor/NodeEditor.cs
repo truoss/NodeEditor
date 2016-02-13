@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-using UnityEditor;
 using System.Collections.Generic;
 
 namespace NodeSystem
@@ -109,6 +107,120 @@ namespace NodeSystem
 
             return connections.ToArray();
         }
+
+        public static Connection[] GetAllInputConnections(Node node)
+        {
+            List<Connection> connections = new List<Connection>();
+            if (node.Outputs.Count > 0)
+            {
+                for (int i = 0; i < node.Inputs.Count; i++)
+                {
+                    if (node.Inputs[i].connections.Count > 0)
+                    {
+                        for (int x = 0; x < node.Inputs[i].connections.Count; x++)
+                        {
+                            connections.Add(node.Inputs[i].connections[x]);
+                        }
+                    }
+                }
+            }
+
+            return connections.ToArray();
+        }
+
+        public static Node[] GetAllParentNodes(Node node)
+        {
+            List<Node> parentNodes = new List<Node>();
+            var cons = GetAllInputConnections(node);
+
+            if (cons.Length == 0)
+                return null;
+
+            for (int i = 0; i < cons.Length; i++)
+            {
+                parentNodes.Add(cons[i].startSocket.parentNode);
+            }
+
+            return parentNodes.ToArray();
+        }
+
+
+        public static List<Node> GetNodesWitoutInputs(List<Node> nodes)
+        {
+            List<Node> result = new List<Node>();
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                //if has no input sockets
+                if (nodes[i].Inputs == null || nodes[i].Inputs.Count == 0)
+                    result.Add(nodes[i]);
+                //if has no connections in input sockets
+                else if (NodeEditor.GetAllInputConnections(nodes[i]).Length == 0)
+                    result.Add(nodes[i]);
+            }
+
+            return result;
+        }
+
+        public static List<Node> GetNodesWitoutOutputs(List<Node> nodes)
+        {
+            List<Node> result = new List<Node>();
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                //if has no output sockets
+                if (nodes[i].Outputs == null || nodes[i].Outputs.Count == 0)
+                    result.Add(nodes[i]);
+                //if has no connections in output sockets
+                else if (NodeEditor.GetAllOutputConnections(nodes[i]).Length == 0)
+                    result.Add(nodes[i]);
+            }
+
+            return result;
+        }
+
+
+        public static int RecSortNodeOrder(Dictionary<Node, int> ordered, List<Node> nodes, int curOrder)
+        {
+            Debug.LogWarning("Node count: " + nodes.Count + " curOrder: " + curOrder);
+            if (nodes.Count == 0)
+                return curOrder-1;
+
+            if (nodes.Count == 1)
+            {
+                ordered.Add(nodes[0], curOrder);
+                nodes.Remove(nodes[0]);
+                return curOrder;
+            }
+
+            List<Node> tmp = new List<Node>();
+            for (int i = nodes.Count; i >= 0; i -= 1)
+            {
+                List<int> parentOrder = new List<int>();
+                tmp = new List<Node>(GetAllParentNodes(nodes[i]));
+                for (int n = 0; n < tmp.Count; n++)
+                {
+                    if (ordered.ContainsKey(tmp[n]))
+                    {
+                        if (!parentOrder.Contains(ordered[tmp[n]]))
+                            parentOrder.Add(ordered[tmp[n]]);
+                    }
+                }
+
+                if (parentOrder.Count == 1)
+                {
+                    ordered.Add(nodes[i], curOrder);
+                    nodes.Remove(nodes[i]);
+                }
+            }
+
+            if (nodes.Count != 0)
+            {
+                curOrder++;
+                return RecSortNodeOrder(ordered, nodes, curOrder);
+            }
+            else
+                return curOrder;
+        }
+
 
         public static bool IsConnectionLoop(SocketIn inSocket, Connection connection)
         {
