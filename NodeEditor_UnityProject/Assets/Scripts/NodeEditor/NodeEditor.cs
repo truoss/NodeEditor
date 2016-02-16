@@ -111,7 +111,7 @@ namespace NodeSystem
         public static Connection[] GetAllInputConnections(Node node)
         {
             List<Connection> connections = new List<Connection>();
-            if (node.Outputs.Count > 0)
+            if (node.Inputs.Count > 0)
             {
                 for (int i = 0; i < node.Inputs.Count; i++)
                 {

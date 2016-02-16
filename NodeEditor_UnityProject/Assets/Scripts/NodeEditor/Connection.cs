@@ -1,12 +1,25 @@
 ﻿#if UNITY_EDITOR
 using UnityEditor;
 #endif
+using System;
 using UnityEngine;
 
 namespace NodeSystem
 {
+    [Serializable]
+    public class ConnectionData
+    {
+        public string OutNodeID;
+        public int OutNodeSocketID;
+
+        public string InNodeID;
+        public int InNodeSocketID;
+    }
+
+
     public class Connection : ScriptableObject
     {
+        public string ID;
         public SocketOut startSocket;
         public SocketIn endSocket;
 

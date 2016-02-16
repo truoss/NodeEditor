@@ -12,6 +12,7 @@ namespace NodeSystem
 
         //public Rect rect;
         public Node parentNode;
+        public int ID;
         public TypeData typeData;
 
         public Rect rect;

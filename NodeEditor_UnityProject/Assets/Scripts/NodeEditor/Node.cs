@@ -4,8 +4,17 @@ using UnityEngine;
 
 namespace NodeSystem
 {
+    [Serializable]
+    public class NodeData
+    {
+        public string NodeType;
+        public string NodeID;
+        public Vector2 NodePos;
+    }
+
     public abstract class Node : ScriptableObject
     {
+        public string ID;
         public Rect rect;
         internal Vector2 contentOffset = Vector2.zero;
 
@@ -26,7 +35,7 @@ namespace NodeSystem
         [NonSerialized]
         internal bool calculated = true;
 
-        public abstract string GetID { get; }
+        public abstract string GetNodeType { get; }
 
         public abstract Node Create(Vector2 pos);
 
@@ -83,13 +92,47 @@ namespace NodeSystem
             }
             return true;
         }
+
+        public Connection[] GetAllConnections()
+        {
+            List<Connection> connections = new List<Connection>();
+            if (Inputs.Count > 0)
+            {
+                for (int i = 0; i < Inputs.Count; i++)
+                {
+                    if (Inputs[i].connections.Count > 0)
+                    {
+                        for (int x = 0; x < Inputs[i].connections.Count; x++)
+                        {
+                            connections.Add(Inputs[i].connections[x]);
+                        }
+                    }
+                }
+            }
+
+            if (Outputs.Count > 0)
+            {
+                for (int i = 0; i < Outputs.Count; i++)
+                {
+                    if (Outputs[i].connections.Count > 0)
+                    {
+                        for (int x = 0; x < Outputs[i].connections.Count; x++)
+                        {
+                            connections.Add(Outputs[i].connections[x]);
+                        }
+                    }
+                }
+            }
+
+            return connections.ToArray();
+        }
     }
     
     [Serializable]
     public class GUITestNode : Node
     {
-        public const string ID = "GUITestNode";
-        public override string GetID { get { return ID; } }
+        public const string NodeType = "GUITestNode";
+        public override string GetNodeType { get { return NodeType; } }
 
         public override Node Create(Vector2 pos)
         {

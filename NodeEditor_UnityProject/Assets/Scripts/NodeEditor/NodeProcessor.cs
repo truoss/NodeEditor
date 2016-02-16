@@ -128,7 +128,7 @@ namespace NodeSystem
             Debug.LogWarning("curOrder: " + curOrder);
             foreach (var key in ordered.Keys)
             {
-                Debug.LogWarning("Node: " + key.GetID + " order: " + ordered[key]);
+                Debug.LogWarning("Node: " + key.GetNodeType + " order: " + ordered[key]);
             }
 
             isOrdered = true;
