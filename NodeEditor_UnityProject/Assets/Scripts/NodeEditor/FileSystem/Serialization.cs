@@ -4,6 +4,163 @@ using System.Xml.Serialization;
 using System.Text;
 using System;
 using UnityEngine;
+using System.Collections.ObjectModel;
+
+[Serializable]
+public class NameKeyedCollection<T> : KeyedCollection<string, T> where T : IHasName
+{
+    protected override string GetKeyForItem(T item)
+    {
+        //Debug.Log("key: '" +item.Name+"'");
+        return item.Name;
+    }
+
+    public void AddOrReplace(T item)
+    {
+        Remove(item.Name);
+        Add(item);
+    }
+}
+
+public interface IHasName
+{
+    string Name { get; }
+}
+
+[Serializable]
+[XmlInclude(typeof(Property<float>))]
+[XmlInclude(typeof(Property<Color>))]
+[XmlInclude(typeof(Property<Vector2>))]
+[XmlInclude(typeof(Property<Vector3>))]
+[XmlInclude(typeof(Property<string>))]
+public abstract class Property : IHasName
+{
+    [XmlIgnore]
+    [SerializeField]
+    protected string name;
+
+    public string Name { get { return name; } set { name = value; } }
+
+    abstract public Property CreateCopyProperty();
+    abstract public void CopyPropertyValueTo(Property p);
+
+    abstract public string ValueString { get; }
+
+    abstract public void SetValueString(string newVal);
+}
+
+
+
+[Serializable]
+public class Property<T> : Property
+{
+    public T Value;
+
+
+    [XmlIgnore]
+    override public string ValueString { get { return Value.ToString(); } }
+
+
+    override public Property CreateCopyProperty()
+    {
+        var p = new Property<T>();
+        p.Name = Name;
+        p.Value = Value;
+        return p;
+    }
+
+    override public void SetValueString(string newVal)
+    {
+        this.Value = (T)Convert.ChangeType(newVal, typeof(T));
+    }
+
+
+    override public void CopyPropertyValueTo(Property p)
+    {
+        ((Property<T>)p).Value = Value;
+    }
+
+}
+
+[Serializable]
+public class PropertiesData
+{
+    public NameKeyedCollection<Property> properties = new NameKeyedCollection<Property>();
+
+    public Property Get(string name)
+    {
+        if (properties.Contains(name))
+            return properties[name];
+        else
+            return null;
+    }
+
+    public Property<T> Get<T>(string name)
+    {
+        if (properties.Contains(name))
+            return properties[name] as Property<T>;
+        else
+            return null;
+    }
+
+
+    public Property<T> ForceGet<T>(string name, T defaultValue)
+    {
+        var p = Get<T>(name);
+        if (p == null)
+        {
+            p = new Property<T>();
+            p.Name = name;
+            p.Value = defaultValue;
+            properties.Add(p);
+        }
+
+        return p;
+    }
+    
+    // bool values
+    public void ForceSetBool(string key, bool value)
+    {
+        string v = value ? "true" : "false";
+        ForceGet<string>(key, v).Value = v;
+    }
+
+    public bool ForceGetBool(string key, bool defaultValue)
+    {
+        return ForceGet<string>(key, defaultValue ? "true" : "false").Value == "true" ? true : false;
+    }
+
+
+    private void CopyPropertyFrom(Property p)
+    {
+        if (!properties.Contains(p.Name))
+        {
+            properties.Add(p.CreateCopyProperty());
+        }
+        else
+        {
+            p.CopyPropertyValueTo(properties[p.Name]);
+        }
+    }
+
+
+    public void CopyPropertiesDataFrom(PropertiesData ps)
+    {
+        foreach (var p in ps.properties)
+        {
+            CopyPropertyFrom(p);
+        }
+    }
+
+    public void DebugPrint()
+    {
+        foreach (var item in properties)
+        {
+            Debug.LogWarning(item.ValueString);
+        }
+    }
+}
+
 
 public static class Serialization
 {
@@ -128,77 +285,5 @@ public static class Serialization
 
             return default(T);
         }
-    }   
-
-
-
-    /*
-    static public void SaveSerDataToZip<T>(FileStream outputFileStream, T serialisationData, string internalFilename, string password, bool copyRessources, string ressourcesPath)
-    {
-        var settings = new XmlWriterSettings()
-        {
-            Encoding = Encoding.UTF8,
-            ConformanceLevel = ConformanceLevel.Document,
-            Indent = true,
-            IndentChars = "\t",
-            NewLineHandling = NewLineHandling.None,
-            NewLineChars = "\r\n",
-            CloseOutput = false,
-            //OmitXmlDeclaration = true
-        };
-
-
-        using (MemoryStream stream = new MemoryStream())
-        {
-            try
-            {
-                XmlSerializer s = new XmlSerializer(typeof(T));
-                s.Serialize(XmlWriter.Create(stream, settings), serialisationData);
-                stream.Flush();
-                stream.Seek(0, SeekOrigin.Begin);
-
-                //Durch die "using"-Anweisung wird der content aus dem stream nach dem verlassen verworfen
-                ZipUtil.CreateZIPFormMemoryStream(stream, internalFilename, outputFileStream, password, copyRessources, ressourcesPath);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e.GetBaseException().Message);
-            }
-        }
-    }
-    
-   
-    static public void SaveSerDataToZip<T>(FileStream outputFileStream, T serialisationData, string filename, string password, List<string> imagesToCopy, string imageDirStartFolder)
-    {
-        var settings = new XmlWriterSettings()
-        {
-            Encoding = Encoding.UTF8,
-            ConformanceLevel = ConformanceLevel.Document,
-            Indent = true,
-            IndentChars = "\t",
-            NewLineHandling = NewLineHandling.None,
-            NewLineChars = "\r\n",
-            CloseOutput = false,
-        };
-
-
-        using (MemoryStream stream = new MemoryStream())
-        {
-            try
-            {
-                XmlSerializer s = new XmlSerializer(typeof(T));
-                s.Serialize(XmlWriter.Create(stream, settings), serialisationData);
-                stream.Flush();
-                stream.Seek(0, SeekOrigin.Begin);
-
-                //Durch die "using"-Anweisung wird der content aus dem stream nach dem verlassen verworfen
-                ZipUtil.CreateZIPFormMemoryStreamWithResourceCopy(stream, filename, outputFileStream, password, imagesToCopy,imageDirStartFolder);
-            }
-            catch (Exception e)
-            {
-                Debug.LogError(e.GetBaseException().Message);
-            }
-        }
-    }
-    */
+    }  
 }
