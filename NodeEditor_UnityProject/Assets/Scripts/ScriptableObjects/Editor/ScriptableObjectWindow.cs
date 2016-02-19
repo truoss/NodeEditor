@@ -69,6 +69,11 @@ public class ScriptableObjectWindow : EditorWindow
 
             brain.network.Add(neuron);
         }
+
+        if (GUI.changed)
+        {
+            EditorUtility.SetDirty(brain);
+        }
     }      
 
 }
