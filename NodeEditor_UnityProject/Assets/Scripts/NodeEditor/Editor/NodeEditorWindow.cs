@@ -7,7 +7,7 @@ namespace NodeSystem
 {
     public class NodeEditorWindow : EditorWindow
     {
-        public NodeGraph Graph;
+        public NodeGraph Graph { get { return NodeEditor.Graph; } }
         public static NodeEditorWindow editorWindow;
 
         Rect sideWindowRect;
@@ -29,6 +29,14 @@ namespace NodeSystem
             //editorWindow.minSize = new Vector2(512,512);
             //Debug.LogWarning("ShowEditor: " + editorWindow.position);
 #endif            
+        }
+
+        [UnityEditor.Callbacks.DidReloadScripts]
+        private static void OnScriptsReloaded()
+        {
+            Debug.LogWarning("Reload from XML...");
+            if(NodeEditor.NodeGraphName != null || NodeEditor.NodeGraphName != "")
+                ImportGraphFromXML(NodeEditor.NodeGraphName);
         }
 
         [ContextMenu("CalcNodeOrder")]
@@ -74,6 +82,7 @@ namespace NodeSystem
             //init rects
             sideWindowRect = new Rect(0, 0, 155, editorWindow.position.height);
             scrollViewRect = new Rect(sideWindowRect.width, 0, editorWindow.position.width - sideWindowRect.width, editorWindow.position.height);
+                       
 
             if (Graph != null)
             {
@@ -88,8 +97,7 @@ namespace NodeSystem
                 }
 
                 //Init NodeEditor
-                NodeEditor.mousePos = e.mousePosition;
-                NodeEditor.Graph = Graph;
+                NodeEditor.mousePos = e.mousePosition;                
                 NodeEditor.viewOffset.x = scrollViewRect.x;
                 NodeEditor.viewOffset.y = scrollViewRect.y;
                 NodeEditor.canvasSize = new Vector2(4000,4000);
@@ -168,164 +176,176 @@ namespace NodeSystem
                     DragNodes(e, Graph.nodes);
 
 
-                //GUI.Box(scrollViewRect, GUIx.empty, GUIx.I.window);
-                Graph.scrollPos = GUI.BeginScrollView(scrollViewRect, Graph.scrollPos, new Rect(0, 0, NodeEditor.canvasSize.x, NodeEditor.canvasSize.y), false, false);
-                
-                //background
-                //TODO: only draw visible
-                for (int i = 0; i < NodeEditor.canvasSize.x / GUIx.I.background.fixedWidth; i++)
+                //GUI.Box(scrollViewRect, GUIx.empty, GUIx.I.window);  
+                try
                 {
-                    GUI.DrawTexture(new Rect(GUIx.I.background.fixedWidth * i, 0, GUIx.I.background.fixedWidth, GUIx.I.background.fixedHeight), GUIx.I.background.normal.background);
-                    GUI.DrawTexture(new Rect(GUIx.I.background.fixedWidth * i, GUIx.I.background.fixedWidth, GUIx.I.background.fixedWidth, GUIx.I.background.fixedHeight), GUIx.I.background.normal.background);
-                    GUI.DrawTexture(new Rect(GUIx.I.background.fixedWidth * i, GUIx.I.background.fixedWidth * 2, GUIx.I.background.fixedWidth, GUIx.I.background.fixedHeight), GUIx.I.background.normal.background);
-                    GUI.DrawTexture(new Rect(GUIx.I.background.fixedWidth * i, GUIx.I.background.fixedWidth * 3, GUIx.I.background.fixedWidth, GUIx.I.background.fixedHeight), GUIx.I.background.normal.background);
-                    GUI.DrawTexture(new Rect(GUIx.I.background.fixedWidth * i, GUIx.I.background.fixedWidth * 4, GUIx.I.background.fixedWidth, GUIx.I.background.fixedHeight), GUIx.I.background.normal.background);
-                    GUI.DrawTexture(new Rect(GUIx.I.background.fixedWidth * i, GUIx.I.background.fixedWidth * 5, GUIx.I.background.fixedWidth, GUIx.I.background.fixedHeight), GUIx.I.background.normal.background);
-                    GUI.DrawTexture(new Rect(GUIx.I.background.fixedWidth * i, GUIx.I.background.fixedWidth * 6, GUIx.I.background.fixedWidth, GUIx.I.background.fixedHeight), GUIx.I.background.normal.background);
-                    GUI.DrawTexture(new Rect(GUIx.I.background.fixedWidth * i, GUIx.I.background.fixedWidth * 7, GUIx.I.background.fixedWidth, GUIx.I.background.fixedHeight), GUIx.I.background.normal.background);
-                    //GUI.DrawTexture(new Rect(GUIx.I.background.fixedWidth * i, GUIx.I.background.fixedWidth * 8, GUIx.I.background.fixedWidth, GUIx.I.background.fixedHeight), GUIx.I.background.normal.background);
-                }                
-                
-                // Draw nodes
-                for (int i = 0; i < Graph.nodes.Count; i++)
-                {
-                    Graph.nodes[i].DrawNode();
-                }
+                    Graph.scrollPos = GUI.BeginScrollView(scrollViewRect, Graph.scrollPos, new Rect(0, 0, NodeEditor.canvasSize.x, NodeEditor.canvasSize.y), false, false);
 
-                //GUILayout.EndScrollView();
-                GUI.EndScrollView();
-
-
-                // Check if the mouse is above our scrollview.
-                if (e.button == 2 && e.type == EventType.MouseDown && scrollViewRect.Contains(Event.current.mousePosition) && !NodeEditor.isPanning)
-                    NodeEditor.isPanning = true;
-                else if (e.button == 2 && e.type == EventType.MouseUp && NodeEditor.isPanning)
-                    NodeEditor.isPanning = false;                
-
-                //Debug.LogWarning(NodeEditor.isPanning);
-                if (NodeEditor.isPanning)
-                {
-                    // Only move if the distance between the last mouse position and the current is less than 50.
-                    // Without this it jumps during the drag.
-                    if (Vector2.Distance(NodeEditor.mousePos, NodeEditor.lastMousePos) < 50)
+                    //background
+                    //TODO: only draw visible
+                    for (int i = 0; i < NodeEditor.canvasSize.x / GUIx.I.background.fixedWidth; i++)
                     {
-                        // Calculate the delta x and y.
-                        float x = NodeEditor.lastMousePos.x - NodeEditor.mousePos.x;
-                        float y = NodeEditor.lastMousePos.y - NodeEditor.mousePos.y;
-
-                        // Add the delta moves to the scroll position.
-                        Graph.scrollPos.x += x;
-                        Graph.scrollPos.y += y;
-                        //Event.current.Use();
-                        Repaint();
+                        GUI.DrawTexture(new Rect(GUIx.I.background.fixedWidth * i, 0, GUIx.I.background.fixedWidth, GUIx.I.background.fixedHeight), GUIx.I.background.normal.background);
+                        GUI.DrawTexture(new Rect(GUIx.I.background.fixedWidth * i, GUIx.I.background.fixedWidth, GUIx.I.background.fixedWidth, GUIx.I.background.fixedHeight), GUIx.I.background.normal.background);
+                        GUI.DrawTexture(new Rect(GUIx.I.background.fixedWidth * i, GUIx.I.background.fixedWidth * 2, GUIx.I.background.fixedWidth, GUIx.I.background.fixedHeight), GUIx.I.background.normal.background);
+                        GUI.DrawTexture(new Rect(GUIx.I.background.fixedWidth * i, GUIx.I.background.fixedWidth * 3, GUIx.I.background.fixedWidth, GUIx.I.background.fixedHeight), GUIx.I.background.normal.background);
+                        GUI.DrawTexture(new Rect(GUIx.I.background.fixedWidth * i, GUIx.I.background.fixedWidth * 4, GUIx.I.background.fixedWidth, GUIx.I.background.fixedHeight), GUIx.I.background.normal.background);
+                        GUI.DrawTexture(new Rect(GUIx.I.background.fixedWidth * i, GUIx.I.background.fixedWidth * 5, GUIx.I.background.fixedWidth, GUIx.I.background.fixedHeight), GUIx.I.background.normal.background);
+                        GUI.DrawTexture(new Rect(GUIx.I.background.fixedWidth * i, GUIx.I.background.fixedWidth * 6, GUIx.I.background.fixedWidth, GUIx.I.background.fixedHeight), GUIx.I.background.normal.background);
+                        GUI.DrawTexture(new Rect(GUIx.I.background.fixedWidth * i, GUIx.I.background.fixedWidth * 7, GUIx.I.background.fixedWidth, GUIx.I.background.fixedHeight), GUIx.I.background.normal.background);
+                        //GUI.DrawTexture(new Rect(GUIx.I.background.fixedWidth * i, GUIx.I.background.fixedWidth * 8, GUIx.I.background.fixedWidth, GUIx.I.background.fixedHeight), GUIx.I.background.normal.background);
                     }
-                }
 
-
-                if (Event.current.button == 0 && NodeEditor.CreateConnectionMode)
-                {
-                    NodeEditor.tentativeConnection.DrawConnection(new Rect(NodeEditor.mousePos.x, NodeEditor.mousePos.y, 1, 1));
-                    Repaint();
-                }
-
-
-                //draw curves
-                for (int i = Graph.nodes.Count - 1; i >= 0; i -= 1)
-                {
-                    for (int n = 0; n < Graph.nodes[i].Outputs.Count; n++)
+                    // Draw nodes
+                    for (int i = 0; i < Graph.nodes.Count; i++)
                     {
-                        for (int k = 0; k < Graph.nodes[i].Outputs[n].connections.Count; k++)
+                        Graph.nodes[i].DrawNode();
+                    }
+
+                    //GUILayout.EndScrollView();
+                    GUI.EndScrollView();
+
+
+                    // Check if the mouse is above our scrollview.
+                    if (e.button == 2 && e.type == EventType.MouseDown && scrollViewRect.Contains(Event.current.mousePosition) && !NodeEditor.isPanning)
+                        NodeEditor.isPanning = true;
+                    else if (e.button == 2 && e.type == EventType.MouseUp && NodeEditor.isPanning)
+                        NodeEditor.isPanning = false;
+
+                    //Debug.LogWarning(NodeEditor.isPanning);
+                    if (NodeEditor.isPanning)
+                    {
+                        // Only move if the distance between the last mouse position and the current is less than 50.
+                        // Without this it jumps during the drag.
+                        if (Vector2.Distance(NodeEditor.mousePos, NodeEditor.lastMousePos) < 50)
                         {
-                            Graph.nodes[i].Outputs[n].connections[k].DrawConnection();
+                            // Calculate the delta x and y.
+                            float x = NodeEditor.lastMousePos.x - NodeEditor.mousePos.x;
+                            float y = NodeEditor.lastMousePos.y - NodeEditor.mousePos.y;
+
+                            // Add the delta moves to the scroll position.
+                            Graph.scrollPos.x += x;
+                            Graph.scrollPos.y += y;
+                            //Event.current.Use();
                             Repaint();
                         }
                     }
-                }               
+
+
+                    if (Event.current.button == 0 && NodeEditor.CreateConnectionMode)
+                    {
+                        NodeEditor.tentativeConnection.DrawConnection(new Rect(NodeEditor.mousePos.x, NodeEditor.mousePos.y, 1, 1));
+                        Repaint();
+                    }
+
+
+                    //draw curves
+                    for (int i = Graph.nodes.Count - 1; i >= 0; i -= 1)
+                    {
+                        for (int n = 0; n < Graph.nodes[i].Outputs.Count; n++)
+                        {
+                            for (int k = 0; k < Graph.nodes[i].Outputs[n].connections.Count; k++)
+                            {
+                                Graph.nodes[i].Outputs[n].connections[k].DrawConnection();
+                                Repaint();
+                            }
+                        }
+                    }
+                }
+                catch (System.Exception)
+                {
+                }                
             }
 
             if (!sideWindowRect.Contains(Event.current.mousePosition) && (Event.current.button == 0 || Event.current.button == 1) && Event.current.type == EventType.MouseDown)
                 GUI.FocusControl("");
 
             //Debug.LogWarning(sideWindowRect);
-            GUILayout.BeginArea(sideWindowRect, GUI.skin.box);
-            //DrawSideWindow();      
-            if (Graph == null)
-                StatusMsg = "nothing loaded!";
-            else
-                StatusMsg = "loaded " + Graph.Name;
-            GUILayout.Label("Status: " + StatusMsg);
-            NodeEditor.NoteGraphName = GUILayout.TextField(NodeEditor.NoteGraphName, 32, GUILayout.ExpandWidth(true));
-
-            GUI.enabled = NodeEditor.NoteGraphName != "";
-            if (GUILayout.Button("Create"))
+            try
             {
-                if (!File.Exists("Assets/Resources/" + NodeEditor.NoteGraphName + ".asset"))
+                GUILayout.BeginArea(sideWindowRect, GUI.skin.box);
+                //DrawSideWindow();      
+                if (Graph == null)
+                    StatusMsg = "nothing loaded!";
+                else
+                    StatusMsg = "loaded " + Graph.Name;
+                GUILayout.Label("Status: " + StatusMsg);
+                NodeEditor.NodeGraphName = GUILayout.TextField(NodeEditor.NodeGraphName, 32, GUILayout.ExpandWidth(true));
+
+                GUI.enabled = NodeEditor.NodeGraphName != "";
+                if (GUILayout.Button("Create"))
                 {
-                    var asset = CreateInstance<NodeGraph>();
-                    asset.Name = NodeEditor.NoteGraphName;
-
-                    DataAssetCreator.CreateDataAsset(NodeEditor.NoteGraphName, asset);
-
-                    if (asset != null)
+                    if (!File.Exists("Assets/Resources/" + NodeEditor.NodeGraphName + ".asset"))
                     {
-                        asset.Name = NodeEditor.NoteGraphName;
-                        Graph = asset;
-                        StatusMsg = "created " + Graph.Name;
+                        var asset = CreateInstance<NodeGraph>();
+                        asset.Name = NodeEditor.NodeGraphName;
+
+                        DataAssetCreator.CreateDataAsset(NodeEditor.NodeGraphName, asset);
+
+                        if (asset != null)
+                        {
+                            asset.Name = NodeEditor.NodeGraphName;
+                            NodeEditor.Graph = asset;
+                            StatusMsg = "created " + Graph.Name;
+                        }
+                    }
+                    else
+                        Debug.LogWarning("Asset already exists!");
+                }
+
+
+                GUI.enabled = NodeEditor.NodeGraphName != "";
+                if (GUILayout.Button("Load"))
+                {
+                    NodeGraph tmp = Resources.Load<NodeGraph>(NodeEditor.NodeGraphName);
+
+                    if (tmp != null)
+                    {
+                        StatusMsg = "loaded " + tmp.Name;
+                        NodeEditor.Graph = tmp;
                     }
                 }
-                else
-                    Debug.LogWarning("Asset already exists!");
-            }
 
-            
-            GUI.enabled = NodeEditor.NoteGraphName != "";
-            if (GUILayout.Button("Load"))
-            {
-                NodeGraph tmp = Resources.Load<NodeGraph>(NodeEditor.NoteGraphName);
-
-                if (tmp != null)
+                GUI.enabled = Graph != null;
+                if (GUILayout.Button("Center View"))
                 {
-                    StatusMsg = "loaded " + tmp.Name;
-                    Graph = tmp;
+                    Graph.scrollPos = new Vector2(NodeEditor.canvasSize.x * 0.5f, NodeEditor.canvasSize.y * 0.5f);
                 }
-            }
+                GUI.enabled = true;
 
-            GUI.enabled = Graph != null;
-            if (GUILayout.Button("Center View"))
-            {
-                Graph.scrollPos = new Vector2(NodeEditor.canvasSize.x * 0.5f, NodeEditor.canvasSize.y * 0.5f);
-            }
-            GUI.enabled = true;
+                GUI.enabled = Graph != null;
+                if (GUILayout.Button("Calc Order"))
+                {
+                    CalculateNodeOrder();
+                }
+                GUI.enabled = true;
 
-            GUI.enabled = Graph != null;
-            if (GUILayout.Button("Calc Order"))
-            {
-                CalculateNodeOrder();
-            }
-            GUI.enabled = true;
+                GUI.enabled = Graph != null;
+                if (GUILayout.Button("Export to XML"))
+                {
+                    string path = "NodeGraphs/" + Graph.Name + ".xml";
+                    var data = NodeGraph.CreateData(Graph);
+                    Serialization.SaveToUTF8XmlFile(data, path);
+                }
+                GUI.enabled = true;
 
-            GUI.enabled = Graph != null;
-            if (GUILayout.Button("Export to XML"))
-            {
-                string path = "NodeGraphs/" + Graph.Name + ".xml";
-                var data = NodeGraph.CreateData(Graph);
-                Serialization.SaveToUTF8XmlFile(data, path);
+                //GUI.enabled = Graph != null;
+                if (GUILayout.Button("Import from XML"))
+                {
+                    ImportGraphFromXML(NodeEditor.NodeGraphName);
+                }
+                GUILayout.EndArea();
             }
-            GUI.enabled = true;
-
-            //GUI.enabled = Graph != null;
-            if (GUILayout.Button("Import from XML"))
-            {
-                ImportGraphFromXML(NodeEditor.NoteGraphName);
-            }
-            GUILayout.EndArea();
+            catch (System.Exception)
+            { }
 
             NodeEditor.lastMousePos = Event.current.mousePosition;
         }
 
-        private void ImportGraphFromXML(string name)
+        private static void ImportGraphFromXML(string name)
         {
-            string path = "NodeGraphs/" + name + ".xml";
+            string path = EditorUtility.OpenFilePanel("Load Node Graph from XML", "NodeGraphs/", "xml");
+            //string path = "NodeGraphs/" + name + ".xml";
             NodeGraphData data = Serialization.LoadFromXmlFile<NodeGraphData>(path);
             if (data != null)
             {
@@ -336,7 +356,7 @@ namespace NodeSystem
                     File.Delete("Assets/Resources/" + tmp.Name + ".asset");
 
                 DataAssetCreator.CreateDataAsset(tmp.Name, tmp);
-                Graph = tmp;
+                NodeEditor.Graph = tmp;
                 /*
                 if (!File.Exists("Assets/Resources/" + tmp.Name + ".asset"))
                 {
@@ -351,12 +371,12 @@ namespace NodeSystem
                 }
                 */
                 if (tmp != null)
-                    StatusMsg = "created " + Graph.Name;                
+                    StatusMsg = "created " + NodeEditor.Graph.Name;                
             }
             else
             {                
-                StatusMsg = "No xml found with: " + NodeEditor.NoteGraphName;
-                Debug.LogWarning("No xml found with: " + NodeEditor.NoteGraphName);
+                StatusMsg = "No xml found with: " + NodeEditor.NodeGraphName;
+                Debug.LogWarning("No xml found with: " + NodeEditor.NodeGraphName);
             }
         }
 

@@ -5,7 +5,7 @@ namespace NodeSystem
 {
     public static class NodeEditor
     {
-        public static string NoteGraphName = "";
+        public static string NodeGraphName = "";
         public static NodeGraph Graph;
 
         public static Vector2 viewOffset;
