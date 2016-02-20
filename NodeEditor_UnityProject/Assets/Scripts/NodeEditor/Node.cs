@@ -35,6 +35,8 @@ namespace NodeSystem
         [NonSerialized]
         internal bool calculated = true;
 
+        public void SetID(string id) { ID = id; }
+
         public abstract string GetNodeType { get; }
 
         public abstract Node Create(Vector2 pos);
@@ -71,7 +73,7 @@ namespace NodeSystem
 
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            GUILayout.Label(name);
+            GUILayout.Label(GetNodeType);
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 
@@ -128,126 +130,6 @@ namespace NodeSystem
         }
     }
     
-    [Serializable]
-    public class GUITestNode : Node
-    {
-        public const string NodeType = "GUITestNode";
-        public override string GetNodeType { get { return NodeType; } }
-
-        public override Node Create(Vector2 pos)
-        {
-            //GUITestNode node = CreateInstance<GUITestNode>();
-
-            Inputs.Add((SocketIn)CreateInstance<SocketIn>().Create(this, new TypeData(new FloatType())));
-            Inputs.Add((SocketIn)CreateInstance<SocketIn>().Create(this, new TypeData(new FloatType())));
-
-            Outputs.Add((SocketOut)CreateInstance<SocketOut>().Create(this, new TypeData(new FloatType())));
-            Outputs.Add((SocketOut)CreateInstance<SocketOut>().Create(this, new TypeData(new FloatType())));
-
-            rect = new Rect(pos.x, pos.y, 120, (Inputs.Count + Outputs.Count) * 10 + 10);
-            name = "GUITestNode";
-            //Debug.LogWarning(rect);
-
-            return this;
-        }
-
-        public override void NodeGUI()
-        {
-            for (int i = 0; i < Inputs.Count; i++)
-            {
-                GUILayout.BeginHorizontal();
-                if (NodeEditor.IsHoveredSocket(Inputs[i]) || NodeEditor.IsSelectedSocket(Inputs[i]))
-                    GUI.color = Color.yellow * 1.3f;
-                else
-                    GUI.color = Color.yellow * 0.8f; //Inputs[i].typeData.declaration.col;
-                GUILayout.Label(GUIx.empty, GUIx.I.socketStyle);
-                if (Event.current.type == EventType.Repaint)
-                    Inputs[i].rect = GUILayoutUtility.GetLastRect();
-                GUI.color = Color.white;
-
-                GUILayout.Label("In"); //Inputs[i].typeData.declaration.Name);
-                
-                GUILayout.FlexibleSpace();
-
-                GUILayout.EndHorizontal();
-            }
-
-
-            GUILayout.Space(16);
-
-            
-            for (int i = 0; i < Outputs.Count; i++)
-            {
-                GUILayout.BeginHorizontal();
-                
-                GUILayout.FlexibleSpace();
-
-                GUILayout.Label("Out"); //Inputs[i].typeData.declaration.Name);
-
-                if (NodeEditor.IsHoveredSocket(Outputs[i]) || NodeEditor.IsSelectedSocket(Outputs[i]))
-                    GUI.color = Color.yellow * 1.3f;
-                else
-                    GUI.color = Color.yellow * 0.8f; //Inputs[i].typeData.declaration.col;
-                GUILayout.Label(GUIx.empty, GUIx.I.socketStyle);
-                if (Event.current.type == EventType.Repaint)
-                    Outputs[i].rect = GUILayoutUtility.GetLastRect();
-                GUI.color = Color.white;
-
-                GUILayout.EndHorizontal();
-            }
-        }
-
-        public override bool Process()
-        {
-            if (!allInputsReady())
-                return false;
-            Outputs[0].SetValue<float>(Inputs[0].GetValue<float>() * 5); //TODO GET SET
-            Outputs[1].SetValue<float>(Inputs[1].GetValue<float>() * 10);
-            return true;
-        }
-    }
-
-    /*
-    public class InputNode : Node
-    {
-        public const string ID = "InputNode";
-        public override string GetID { get { return ID; } }
-
-        public override Node Create(Vector2 pos)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void NodeGUI()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool Update()
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class OutputNode : Node
-    {
-        public const string ID = "OutputNode";
-        public override string GetID { get { return ID; } }
-
-        public override Node Create(Vector2 pos)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void NodeGUI()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool Update()
-        {
-            throw new NotImplementedException();
-        }
-    }
-    */
+    
+        
 }

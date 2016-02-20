@@ -4,13 +4,11 @@ using UnityEngine;
 
 namespace NodeSystem
 {
-    public abstract class Socket : ScriptableObject
+    public abstract class Socket
     {
         [NonSerialized]
         private object value = null;
         private Type valueType;
-
-        //public Rect rect;
         public Node parentNode;
         public int ID;
         public TypeData typeData;
@@ -28,7 +26,7 @@ namespace NodeSystem
             }
         }
 
-        public abstract Socket Create(Node node, TypeData type);
+        public abstract Socket Create(Node node, TypeData type);//
 
         protected internal virtual void DrawSocket(Rect socketRect)
         {
@@ -81,10 +79,10 @@ namespace NodeSystem
 
     public class SocketIn : Socket
     {
-        public override Socket Create(Node node, TypeData type)
+        public override Socket Create(Node node, TypeData type)//, TypeData type
         {
             parentNode = node;
-            typeData = type;
+            //typeData = type;
 
             return this;
         }
@@ -92,10 +90,10 @@ namespace NodeSystem
 
     public class SocketOut : Socket
     {
-        public override Socket Create(Node node, TypeData type)
+        public override Socket Create(Node node, TypeData type)//
         {
             parentNode = node;
-            typeData = type;
+            //typeData = type;
 
             return this;
         }

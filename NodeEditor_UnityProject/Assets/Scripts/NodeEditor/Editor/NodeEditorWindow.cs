@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using System.IO;
 
 namespace NodeSystem
 {
@@ -46,6 +47,7 @@ namespace NodeSystem
             var graph = CreateInstance<NodeGraph>();
 
             var node = CreateInstance<GUITestNode>();
+            node.ID = NodeEditor.CreateID();
             node.Create(new Vector2(45, 30));
 
             graph.nodes.Add(node);
@@ -73,8 +75,18 @@ namespace NodeSystem
             sideWindowRect = new Rect(0, 0, 155, editorWindow.position.height);
             scrollViewRect = new Rect(sideWindowRect.width, 0, editorWindow.position.width - sideWindowRect.width, editorWindow.position.height);
 
-            if (Graph)
+            if (Graph != null)
             {
+                if (Graph.nodes.Count > 0)
+                {
+                    if (Graph.nodes[0] == null)
+                    {
+                        Debug.LogWarning("Reload from XML...");
+                        ImportGraphFromXML(Graph.Name);
+                        return;
+                    }                    
+                }
+
                 //Init NodeEditor
                 NodeEditor.mousePos = e.mousePosition;
                 NodeEditor.Graph = Graph;
@@ -85,7 +97,7 @@ namespace NodeSystem
                 //Update Hover
                 NodeEditor.hoveredNode = GetNodeFromMousePos(NodeEditor.mousePos, Graph.nodes);
 
-                if (NodeEditor.hoveredNode)
+                if (NodeEditor.hoveredNode != null)
                     NodeEditor.hoveredSocket = GetSocketFromMousePos(NodeEditor.hoveredNode, NodeEditor.mousePos);
                 Repaint();
 
@@ -98,16 +110,16 @@ namespace NodeSystem
                 {
                     var node = GetNodeFromMousePos(NodeEditor.mousePos, Graph.nodes);
                     //Debug.LogWarning("node: " + node);
-                    if (node)
+                    if (node != null)
                     {
                         var socket = GetSocketFromMousePos(node, NodeEditor.mousePos);
                         //Debug.LogWarning("socket: " + socket);
-                        if (socket && socket is SocketOut)
+                        if (socket != null && socket is SocketOut)
                         {
                             Debug.LogWarning("socket: " + socket);
                             NodeEditor.CreateConnectionMode = true;
                             NodeEditor.startSocket = socket as SocketOut;
-                            NodeEditor.tentativeConnection = CreateInstance<Connection>();
+                            NodeEditor.tentativeConnection = new Connection();
                             NodeEditor.tentativeConnection.startSocket = NodeEditor.startSocket;
                             e.Use();
                         }
@@ -121,10 +133,10 @@ namespace NodeSystem
                 if (e.button == 0 && e.type == EventType.MouseUp && NodeEditor.CreateConnectionMode && !NodeEditor.IsDragging)
                 {
                     var node = GetNodeFromMousePos(NodeEditor.mousePos, Graph.nodes);
-                    if (node)
+                    if (node != null)
                     {
                         var socket = GetSocketFromMousePos(node, NodeEditor.mousePos);
-                        if (socket && socket is SocketIn
+                        if (socket != null && socket is SocketIn
                             && socket.parentNode != NodeEditor.startSocket.parentNode
                             && !NodeEditor.IsConnectionLoop(socket as SocketIn, NodeEditor.tentativeConnection)
                             && !NodeEditor.IsDoubleConnection(socket as SocketIn, NodeEditor.tentativeConnection.startSocket))
@@ -133,20 +145,21 @@ namespace NodeSystem
                             NodeEditor.CreateConnectionMode = false;
                             NodeEditor.endSocket = socket as SocketIn;
 
-                            var link = CreateInstance<Connection>();
+                            var link = new Connection();
+                            link.ID = NodeEditor.CreateID();
                             link.startSocket = NodeEditor.startSocket;
                             link.endSocket = NodeEditor.endSocket;
                             NodeEditor.startSocket.connections.Add(link);
                             NodeEditor.endSocket.connections.Add(link);
 
-                            DestroyImmediate(NodeEditor.tentativeConnection);
+                            //DestroyImmediate(NodeEditor.tentativeConnection);
                             NodeEditor.tentativeConnection = null;
                             e.Use();
                         }
                     }
 
                     NodeEditor.CreateConnectionMode = false;
-                    DestroyImmediate(NodeEditor.tentativeConnection);
+                    //DestroyImmediate(NodeEditor.tentativeConnection);
                     NodeEditor.tentativeConnection = null;
                 }
 
@@ -246,17 +259,25 @@ namespace NodeSystem
             GUI.enabled = NodeEditor.NoteGraphName != "";
             if (GUILayout.Button("Create"))
             {
-                var asset = CreateInstance<NodeGraph>();
-                DataAssetCreator.CreateDataAsset(NodeEditor.NoteGraphName, asset);
-
-                if (asset != null)
+                if (!File.Exists("Assets/Resources/" + NodeEditor.NoteGraphName + ".asset"))
                 {
+                    var asset = CreateInstance<NodeGraph>();
                     asset.Name = NodeEditor.NoteGraphName;
-                    Graph = asset;
-                    StatusMsg = "created " + Graph.Name;
+
+                    DataAssetCreator.CreateDataAsset(NodeEditor.NoteGraphName, asset);
+
+                    if (asset != null)
+                    {
+                        asset.Name = NodeEditor.NoteGraphName;
+                        Graph = asset;
+                        StatusMsg = "created " + Graph.Name;
+                    }
                 }
+                else
+                    Debug.LogWarning("Asset already exists!");
             }
 
+            
             GUI.enabled = NodeEditor.NoteGraphName != "";
             if (GUILayout.Button("Load"))
             {
@@ -274,15 +295,69 @@ namespace NodeSystem
             {
                 Graph.scrollPos = new Vector2(NodeEditor.canvasSize.x * 0.5f, NodeEditor.canvasSize.y * 0.5f);
             }
+            GUI.enabled = true;
 
             GUI.enabled = Graph != null;
             if (GUILayout.Button("Calc Order"))
             {
                 CalculateNodeOrder();
             }
+            GUI.enabled = true;
+
+            GUI.enabled = Graph != null;
+            if (GUILayout.Button("Export to XML"))
+            {
+                string path = "NodeGraphs/" + Graph.Name + ".xml";
+                var data = NodeGraph.CreateData(Graph);
+                Serialization.SaveToUTF8XmlFile(data, path);
+            }
+            GUI.enabled = true;
+
+            //GUI.enabled = Graph != null;
+            if (GUILayout.Button("Import from XML"))
+            {
+                ImportGraphFromXML(NodeEditor.NoteGraphName);
+            }
             GUILayout.EndArea();
 
             NodeEditor.lastMousePos = Event.current.mousePosition;
+        }
+
+        private void ImportGraphFromXML(string name)
+        {
+            string path = "NodeGraphs/" + name + ".xml";
+            NodeGraphData data = Serialization.LoadFromXmlFile<NodeGraphData>(path);
+            if (data != null)
+            {
+                var tmp = NodeGraph.LoadData(data);
+                //Graph = tmp;
+                //TODO if asset does not exist
+                if (File.Exists("Assets/Resources/" + tmp.Name + ".asset"))
+                    File.Delete("Assets/Resources/" + tmp.Name + ".asset");
+
+                DataAssetCreator.CreateDataAsset(tmp.Name, tmp);
+                Graph = tmp;
+                /*
+                if (!File.Exists("Assets/Resources/" + tmp.Name + ".asset"))
+                {
+                    DataAssetCreator.CreateDataAsset(tmp.Name, tmp);
+                    Graph = tmp;
+                }
+                else
+                {
+                    NodeGraph cur = Resources.Load<NodeGraph>(name);
+                    cur = tmp;
+                    Graph = cur;
+                }
+                */
+                if (tmp != null)
+                    StatusMsg = "created " + Graph.Name;                
+            }
+            else
+            {                
+                StatusMsg = "No xml found with: " + NodeEditor.NoteGraphName;
+                Debug.LogWarning("No xml found with: " + NodeEditor.NoteGraphName);
+            }
         }
 
         private void ContextMenu(Event e)
@@ -291,10 +366,10 @@ namespace NodeSystem
             {
                 NodeEditor.selectedNode = GetNodeFromMousePos();
 
-                if (NodeEditor.selectedNode)
+                if (NodeEditor.selectedNode != null)
                 {
                     NodeEditor.selectedSocket = GetSocketFromMousePos();
-                    if (NodeEditor.selectedSocket)
+                    if (NodeEditor.selectedSocket != null)
                     {
                         GenericMenu menu = new GenericMenu();
 
@@ -405,7 +480,7 @@ namespace NodeSystem
             {
                 NodeEditor.selectedNode = GetNodeFromMousePos();
 
-                if (NodeEditor.selectedNode)
+                if (NodeEditor.selectedNode != null)
                 {
                 
                     //Debug.LogWarning("down");
@@ -423,7 +498,7 @@ namespace NodeSystem
                     //Debug.LogWarning(offset.ToString("f4") + " " + NodeEditor.mousePos + " " + NodeEditor.lastMousePos);
                     //offset = ScreenPosToGUIPos(offset);                    
                     lastMousePos = e.mousePosition;
-                    if (NodeEditor.selectedNode)
+                    if (NodeEditor.selectedNode != null)
                         NodeEditor.selectedNode.rect = new Rect(NodeEditor.selectedNode.rect.x + offset.x, NodeEditor.selectedNode.rect.y + offset.y, NodeEditor.selectedNode.rect.width, NodeEditor.selectedNode.rect.height);
                     else
                         Debug.Log("Selected node == null!");
@@ -441,7 +516,7 @@ namespace NodeSystem
 
         void DrawNodeWindow(int id)
         {
-            if (Graph)
+            if (Graph != null)
             {
                 for (int i = 0; i < Graph.nodes.Count; i++)
                 {
@@ -456,7 +531,8 @@ namespace NodeSystem
 
             if (clb.Equals("GUITestNode"))
             {
-                var node = CreateInstance<GUITestNode>();
+                var node = CreateInstance<GUITestNode>();//new GUITestNode();
+                node.ID = NodeEditor.CreateID();
                 node.Create(NodeEditor.ScreenToGUIPos(NodeEditor.mousePos));
                 Graph.nodes.Add(node);
             }
@@ -474,9 +550,11 @@ namespace NodeSystem
 
                     allSockets[i].connections.Clear();
                 }
-                //remove sockets
+                
                 //remove node
                 Graph.nodes.Remove(NodeEditor.selectedNode);
+                DestroyImmediate(NodeEditor.selectedNode);
+                NodeEditor.selectedNode = null;
             }
             else if (clb.Equals("DeleteConnection"))
             {

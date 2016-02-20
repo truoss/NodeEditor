@@ -9,6 +9,8 @@ namespace NodeSystem
     [Serializable]
     public class ConnectionData
     {
+        public string ID;
+
         public string OutNodeID;
         public int OutNodeSocketID;
 
@@ -17,8 +19,10 @@ namespace NodeSystem
     }
 
 
-    public class Connection : ScriptableObject
+    public class Connection
     {
+        ConnectionData data;
+
         public string ID;
         public SocketOut startSocket;
         public SocketIn endSocket;
@@ -56,9 +60,7 @@ namespace NodeSystem
             }
 
             Handles.DrawBezier(startPos, endPos, startTan, endTan, Color.black, null, 1);
-        }
-
-        
+        }        
 #endif
     }
 }

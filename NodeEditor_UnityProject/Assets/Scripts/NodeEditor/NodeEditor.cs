@@ -282,6 +282,12 @@ namespace NodeSystem
         {
             return new Vector2(v2.x - viewOffset.x + Graph.scrollPos.x, v2.y - viewOffset.y + Graph.scrollPos.y);
         }
-        
+
+        public static string CreateID()
+        {
+            string id = System.DateTime.Now.ToString("yyyyMMddHHmmssff");            
+
+            return  id;
+        }
     }
 }
