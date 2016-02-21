@@ -172,7 +172,7 @@ namespace NodeSystem
                 }
 
                 //handle input first => !draw order
-                if (!NodeEditor.CreateConnectionMode)
+                if (!NodeEditor.CreateConnectionMode && GUI.GetNameOfFocusedControl() == "")
                     DragNodes(e, Graph.nodes);
 
 
@@ -282,6 +282,13 @@ namespace NodeSystem
 
                         DataAssetCreator.CreateDataAsset(NodeEditor.NodeGraphName, asset);
 
+                        if (!File.Exists("NodeGraphs/" + NodeEditor.NodeGraphName + ".xml"))
+                        {
+                            string path = "NodeGraphs/" + NodeEditor.NodeGraphName + ".xml";
+                            var data = NodeGraph.CreateData(asset);
+                            Serialization.SaveToUTF8XmlFile(data, path);
+                        }
+
                         if (asset != null)
                         {
                             asset.Name = NodeEditor.NodeGraphName;
@@ -346,37 +353,40 @@ namespace NodeSystem
         {
             string path = EditorUtility.OpenFilePanel("Load Node Graph from XML", "NodeGraphs/", "xml");
             //string path = "NodeGraphs/" + name + ".xml";
-            NodeGraphData data = Serialization.LoadFromXmlFile<NodeGraphData>(path);
-            if (data != null)
+            if (path != "")
             {
-                var tmp = NodeGraph.LoadData(data);
-                //Graph = tmp;
-                //TODO if asset does not exist
-                if (File.Exists("Assets/Resources/" + tmp.Name + ".asset"))
-                    File.Delete("Assets/Resources/" + tmp.Name + ".asset");
-
-                DataAssetCreator.CreateDataAsset(tmp.Name, tmp);
-                NodeEditor.Graph = tmp;
-                /*
-                if (!File.Exists("Assets/Resources/" + tmp.Name + ".asset"))
+                NodeGraphData data = Serialization.LoadFromXmlFile<NodeGraphData>(path);
+                if (data != null)
                 {
+                    var tmp = NodeGraph.LoadData(data);
+                    //Graph = tmp;
+                    //TODO if asset does not exist
+                    if (File.Exists("Assets/Resources/" + tmp.Name + ".asset"))
+                        File.Delete("Assets/Resources/" + tmp.Name + ".asset");
+
                     DataAssetCreator.CreateDataAsset(tmp.Name, tmp);
-                    Graph = tmp;
+                    NodeEditor.Graph = tmp;
+                    /*
+                    if (!File.Exists("Assets/Resources/" + tmp.Name + ".asset"))
+                    {
+                        DataAssetCreator.CreateDataAsset(tmp.Name, tmp);
+                        Graph = tmp;
+                    }
+                    else
+                    {
+                        NodeGraph cur = Resources.Load<NodeGraph>(name);
+                        cur = tmp;
+                        Graph = cur;
+                    }
+                    */
+                    if (tmp != null)
+                        StatusMsg = "created " + NodeEditor.Graph.Name;
                 }
                 else
                 {
-                    NodeGraph cur = Resources.Load<NodeGraph>(name);
-                    cur = tmp;
-                    Graph = cur;
+                    StatusMsg = "No xml found with: " + NodeEditor.NodeGraphName;
+                    Debug.LogWarning("No xml found with: " + NodeEditor.NodeGraphName);
                 }
-                */
-                if (tmp != null)
-                    StatusMsg = "created " + NodeEditor.Graph.Name;                
-            }
-            else
-            {                
-                StatusMsg = "No xml found with: " + NodeEditor.NodeGraphName;
-                Debug.LogWarning("No xml found with: " + NodeEditor.NodeGraphName);
             }
         }
 

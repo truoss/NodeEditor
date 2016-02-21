@@ -2,33 +2,57 @@
 <NodeGraphData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<Name>test</Name>
 	<scrollPos>
-		<x>2000</x>
-		<y>2000</y>
+		<x>0</x>
+		<y>0</y>
 	</scrollPos>
 	<nodes>
 		<NodeData>
 			<NodeType>GUITestNode</NodeType>
-			<NodeID>2016022014081483</NodeID>
+			<NodeID>2016022123295962</NodeID>
 			<NodePos>
-				<x>2249</x>
-				<y>2164</y>
+				<x>244</x>
+				<y>199</y>
 			</NodePos>
+			<properties>
+				<properties>
+					<Property xsi:type="PropertyOfSingle">
+						<Name>input1</Name>
+						<Value>45</Value>
+					</Property>
+					<Property xsi:type="PropertyOfSingle">
+						<Name>input2</Name>
+						<Value>3</Value>
+					</Property>
+				</properties>
+			</properties>
 		</NodeData>
 		<NodeData>
 			<NodeType>GUITestNode</NodeType>
-			<NodeID>2016022014081665</NodeID>
+			<NodeID>2016022123301594</NodeID>
 			<NodePos>
-				<x>2585</x>
-				<y>2332</y>
+				<x>562</x>
+				<y>369</y>
 			</NodePos>
+			<properties>
+				<properties>
+					<Property xsi:type="PropertyOfSingle">
+						<Name>input1</Name>
+						<Value>1</Value>
+					</Property>
+					<Property xsi:type="PropertyOfSingle">
+						<Name>input2</Name>
+						<Value>1</Value>
+					</Property>
+				</properties>
+			</properties>
 		</NodeData>
 	</nodes>
 	<connections>
 		<ConnectionData>
-			<OutNodeID>2016022014081483</OutNodeID>
+			<OutNodeID>2016022123295962</OutNodeID>
 			<OutNodeSocketID>2</OutNodeSocketID>
-			<InNodeID>2016022014081665</InNodeID>
+			<InNodeID>2016022123301594</InNodeID>
 			<InNodeSocketID>0</InNodeSocketID>
-		</ConnectionData>		
+		</ConnectionData>
 	</connections>
 </NodeGraphData>

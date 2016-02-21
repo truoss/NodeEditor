@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace NodeSystem
 {
@@ -6,6 +7,19 @@ namespace NodeSystem
     {
         public const string NodeType = "GUITestNode";
         public override string GetNodeType { get { return NodeType; } }
+
+        public float input1
+        {
+            get { return properties.ForceGet<float>("input1", 1f).Value; }
+            set { properties.Get<float>("input1").Value = value; }
+        }
+
+        public float input2
+        {
+            get { return properties.ForceGet<float>("input2", 0f).Value; }
+            set { properties.Get<float>("input2").Value = value; }
+        }
+        
 
         public override Node Create(Vector2 pos)
         {
@@ -30,32 +44,52 @@ namespace NodeSystem
             sOut.Create(this, new TypeData(new FloatType()));//, new TypeData(new FloatType())
             Outputs.Add(sOut);
 
-            rect = new Rect(pos.x, pos.y, 120, (Inputs.Count + Outputs.Count) * 10 + 10);
+            rect = new Rect(pos.x, pos.y, 155, (Inputs.Count + Outputs.Count) * GUIx.I.socketStyle.fixedHeight + 20 + 24);
 
             return this;
         }
 
         public override void NodeGUI()
         {
-            for (int i = 0; i < Inputs.Count; i++)
-            {
-                GUILayout.BeginHorizontal();
-                if (NodeEditor.IsHoveredSocket(Inputs[i]) || NodeEditor.IsSelectedSocket(Inputs[i]))
-                    GUI.color = Color.yellow * 1.3f;
-                else
-                    GUI.color = Color.yellow * 0.8f; //Inputs[i].typeData.declaration.col;
-                GUILayout.Label(GUIx.empty, GUIx.I.socketStyle);
-                if (Event.current.type == EventType.Repaint)
-                    Inputs[i].rect = GUILayoutUtility.GetLastRect();
-                GUI.color = Color.white;
+            //input1
+            GUILayout.BeginHorizontal();
+            if (NodeEditor.IsHoveredSocket(Inputs[0]) || NodeEditor.IsSelectedSocket(Inputs[0]))
+                GUI.color = Color.yellow * 1.3f;
+            else
+                GUI.color = Color.yellow * 0.8f; //Inputs[i].typeData.declaration.col;
+            GUILayout.Label(GUIx.empty, GUIx.I.socketStyle);
+            if (Event.current.type == EventType.Repaint)
+                Inputs[0].rect = GUILayoutUtility.GetLastRect();
+            GUI.color = Color.white;
 
-                GUILayout.Label("In"); //Inputs[i].typeData.declaration.Name);
+            GUILayout.Space(4);
 
-                GUILayout.FlexibleSpace();
+            if (Inputs[0].connections.Count == 0)
+                input1 = GUILayoutx.NumberField(input1, GUILayout.Width(100));                        
 
-                GUILayout.EndHorizontal();
-            }
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
 
+            //input2            
+            GUILayout.BeginHorizontal();
+            if (NodeEditor.IsHoveredSocket(Inputs[1]) || NodeEditor.IsSelectedSocket(Inputs[1]))
+                GUI.color = Color.yellow * 1.3f;
+            else
+                GUI.color = Color.yellow * 0.8f; //Inputs[i].typeData.declaration.col;
+            GUILayout.Label(GUIx.empty, GUIx.I.socketStyle);
+            if (Event.current.type == EventType.Repaint)
+                Inputs[1].rect = GUILayoutUtility.GetLastRect();
+            GUI.color = Color.white;
+
+            GUILayout.Space(4);
+
+            if (Inputs[1].connections.Count == 0)            
+                input2 = GUILayoutx.NumberField(input2, GUILayout.Width(100));
+
+            GUILayout.FlexibleSpace();
+
+            GUILayout.EndHorizontal();
+            
 
             GUILayout.Space(16);
 

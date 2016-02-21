@@ -10,6 +10,8 @@ namespace NodeSystem
         public string NodeType;
         public string NodeID;
         public Vector2 NodePos;
+
+        public PropertiesData properties = new PropertiesData();
     }
 
     public abstract class Node : ScriptableObject
@@ -20,6 +22,7 @@ namespace NodeSystem
 
         public List<SocketIn> Inputs = new List<SocketIn>();
         public List<SocketOut> Outputs = new List<SocketOut>();
+        public PropertiesData properties = new PropertiesData();
 
         public Socket[] GetAllSockets()
         {
@@ -49,12 +52,8 @@ namespace NodeSystem
 
         public virtual void DrawNode()
         {
-            //Debug.LogWarning("DrawNode: " + rect);
-            //var width = GUIx.GUIContentSize(GUIx.I.skin.GetStyle("Label"), new GUIContent(GetID)).x;
-            //Debug.LogWarning();
-            rect = new Rect(rect.x, rect.y, 130, (Inputs.Count + Outputs.Count) * 15 + 40);
-            //nodeRect.position += NodeEditor.curEditorState.zoomPanAdjust;
-            //contentOffset = new Vector2(0, 20);            
+            //rect = new Rect(rect.x, rect.y, 130, (Inputs.Count + Outputs.Count) * GUIx.I.socketStyle.fixedHeight + 40);
+                        
 
             GUI.BeginGroup(rect);
 

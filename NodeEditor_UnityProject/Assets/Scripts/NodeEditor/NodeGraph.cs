@@ -34,6 +34,7 @@ namespace NodeSystem
                 NodeData nData = new NodeData();
                 nData.NodeType = graph.nodes[i].GetNodeType;
                 nData.NodeID = graph.nodes[i].ID;
+                nData.properties.CopyPropertiesDataFrom(graph.nodes[i].properties);
                 nData.NodePos = new Vector2(graph.nodes[i].rect.x, graph.nodes[i].rect.y);
 
                 var connections = graph.nodes[i].GetAllConnections();
@@ -71,6 +72,7 @@ namespace NodeSystem
                 Node node = ScriptableObject.CreateInstance(graphdata.nodes[i].NodeType) as Node;
                 node.ID = graphdata.nodes[i].NodeID;
                 node = node.Create(graphdata.nodes[i].NodePos);
+                node.properties.CopyPropertiesDataFrom(graphdata.nodes[i].properties);
 
                 graph.nodes.Add(node);
             }

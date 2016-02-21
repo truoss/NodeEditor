@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<NodeGraphData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Name>test2</Name>
+	<scrollPos>
+		<x>2000</x>
+		<y>2000</y>
+	</scrollPos>
+	<nodes />
+	<connections />
+</NodeGraphData>
