@@ -82,7 +82,7 @@ namespace NodeSystem
         public override Socket Create(Node node, TypeData type)//, TypeData type
         {
             parentNode = node;
-            //typeData = type;
+            typeData = type;
 
             return this;
         }
@@ -93,7 +93,7 @@ namespace NodeSystem
         public override Socket Create(Node node, TypeData type)//
         {
             parentNode = node;
-            //typeData = type;
+            typeData = type;
 
             return this;
         }

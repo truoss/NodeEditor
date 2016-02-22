@@ -27,7 +27,14 @@ namespace NodeSystem
     public class FloatType : ITypeDeclaration
     {
         public string Name { get { return "float"; } }
-        public Color col { get { return Color.blue; } }
+        public Color col { get { return Color.yellow; } }
         public Type Type { get { return typeof(float); } }
+    }
+
+    public class Vector3Type : ITypeDeclaration
+    {
+        public string Name { get { return "Vector3"; } }
+        public Color col { get { return Color.green; } }
+        public Type Type { get { return typeof(Vector3); } }
     }
 }

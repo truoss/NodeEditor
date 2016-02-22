@@ -86,6 +86,8 @@ namespace NodeSystem
                 return;
             }
 
+            ordered.Clear();
+            isOrdered = false;            
             int curOrder = 0;
 
             List<Node> inputNodes = NodeEditor.GetNodesWitoutInputs(Graph.nodes);

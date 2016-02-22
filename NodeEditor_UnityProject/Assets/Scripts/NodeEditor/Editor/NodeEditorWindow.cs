@@ -147,7 +147,8 @@ namespace NodeSystem
                         if (socket != null && socket is SocketIn
                             && socket.parentNode != NodeEditor.startSocket.parentNode
                             && !NodeEditor.IsConnectionLoop(socket as SocketIn, NodeEditor.tentativeConnection)
-                            && !NodeEditor.IsDoubleConnection(socket as SocketIn, NodeEditor.tentativeConnection.startSocket))
+                            && !NodeEditor.IsDoubleConnection(socket as SocketIn, NodeEditor.tentativeConnection.startSocket)
+                            && socket.typeData.Type == NodeEditor.startSocket.typeData.Type)
                         {
                             //Debug.LogWarning("socket: " + socket);
                             NodeEditor.CreateConnectionMode = false;
