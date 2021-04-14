@@ -35,6 +35,11 @@ namespace NodeSystem
             return allSockets.ToArray();
         }
 
+        public SocketOut[] GetOutputSockets()
+        {
+            return Outputs.ToArray();
+        }
+
         [NonSerialized]
         internal bool calculated = true;
 
@@ -86,8 +91,9 @@ namespace NodeSystem
 
         protected internal bool allInputsReady()
         {
+            Debug.LogWarning("allInputsReady: count " + Inputs.Count);
             for (int inCnt = 0; inCnt < Inputs.Count; inCnt++)
-            {
+            {                
                 if (Inputs[inCnt].IsValueNull)
                     return false;
             }

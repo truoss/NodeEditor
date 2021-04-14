@@ -135,8 +135,8 @@ namespace NodeSystem
         {
             if (!allInputsReady())
                 return false;
-            Outputs[0].SetValue<float>(Inputs[0].GetValue<float>() * 5); //TODO GET SET
-            Outputs[1].SetValue<float>(Inputs[1].GetValue<float>() * 10);
+            Outputs[0].SetValue<float>(Inputs[0].GetValue<float>()); //TODO GET SET
+            Outputs[1].SetValue<float>(Inputs[1].GetValue<float>());
             return true;
         }
     }

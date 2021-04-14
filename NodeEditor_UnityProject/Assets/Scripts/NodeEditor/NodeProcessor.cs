@@ -5,17 +5,16 @@ namespace NodeSystem
 {
     public static class NodeProcessor
     {
-        public static NodeGraph Graph;
+        //public static NodeGraph Graph;
         public static Dictionary<Node, int> ordered = new Dictionary<Node, int>();
         public static bool isOrdered = false;
         public static int maxOrder = 0;
 
-        public static void ProcessNodes()
+        public static void ProcessNodes(NodeGraph Graph)
         {
             if (!isOrdered)
             {
-                Debug.LogWarning("nodes are not ordered!");
-                return;
+                CalculateNodeOrder(Graph);
             }
 
             //process inputs
@@ -27,7 +26,23 @@ namespace NodeSystem
                 List<Node> nodes = GetNodesByOrder(ordered, i);
                 for (int n = 0; n < nodes.Count; n++)
                 {
-                    nodes[n].Process();
+                    Debug.LogWarning("Process: " + nodes[n].GetNodeType + " id: " + nodes[n].ID);
+                    if (nodes[n].Process())
+                    {
+                        var outputs = nodes[n].GetOutputSockets();
+                        Debug.LogWarning("outputs.Length: " + outputs.Length);
+                        for (int k = 0; k < outputs.Length; k++)
+                        {
+                            Debug.LogWarning("connections.count: " + outputs[k].connections.Count);
+                            foreach (var connection in outputs[k].connections)
+                            {
+                                if(connection.startSocket.typeData.Type == typeof(float))
+                                    connection.PushValue<float>();
+                                else if(connection.startSocket.typeData.Type == typeof(Vector3))
+                                    connection.PushValue<Vector3>();
+                            }                            
+                        }
+                    }                    
                 }
             }
 
@@ -78,7 +93,7 @@ namespace NodeSystem
             return result;
         }
 
-        public static void CalculateNodeOrder()
+        public static void CalculateNodeOrder(NodeGraph Graph)
         {
             if (Graph == null)
             {
@@ -111,22 +126,23 @@ namespace NodeSystem
                 toSort.Remove(outputNodes[i]);
             }
 
+            curOrder++;
+
             if (toSort.Count == 0)
             {
                 Debug.LogWarning("Only input and outputs");
-                return;
             }
-
-            curOrder++;
-            var maxOrder = NodeEditor.RecSortNodeOrder(ordered, toSort, curOrder);
-
-            curOrder = maxOrder + 1;
+            else
+            {                
+                var maxOrder = NodeEditor.RecSortNodeOrder(ordered, toSort, curOrder);
+                curOrder = maxOrder + 1;
+            }            
 
             for (int i = 0; i < outputNodes.Count; i++)
             {
                 ordered.Add(outputNodes[i], curOrder);
             }
-
+            
             Debug.LogWarning("curOrder: " + curOrder);
             foreach (var key in ordered.Keys)
             {

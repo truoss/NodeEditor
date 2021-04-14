@@ -7,72 +7,39 @@
 	</scrollPos>
 	<nodes>
 		<NodeData>
-			<NodeType>GUITestNode</NodeType>
-			<NodeID>2016022123295962</NodeID>
+			<NodeType>FloatNode</NodeType>
+			<NodeID>2016022323360558</NodeID>
 			<NodePos>
-				<x>2342</x>
-				<y>2194</y>
+				<x>2161</x>
+				<y>2151</y>
 			</NodePos>
 			<properties>
 				<properties>
 					<Property xsi:type="PropertyOfSingle">
-						<Name>input1</Name>
-						<Value>31</Value>
-					</Property>
-					<Property xsi:type="PropertyOfSingle">
-						<Name>input2</Name>
-						<Value>3</Value>
-					</Property>
-				</properties>
-			</properties>
-		</NodeData>
-		<NodeData>
-			<NodeType>GUITestNode</NodeType>
-			<NodeID>2016022123301594</NodeID>
-			<NodePos>
-				<x>2607</x>
-				<y>2289</y>
-			</NodePos>
-			<properties>
-				<properties>
-					<Property xsi:type="PropertyOfSingle">
-						<Name>input1</Name>
-						<Value>1</Value>
-					</Property>
-					<Property xsi:type="PropertyOfSingle">
-						<Name>input2</Name>
+						<Name>outputValue</Name>
 						<Value>1</Value>
 					</Property>
 				</properties>
 			</properties>
 		</NodeData>
 		<NodeData>
-			<NodeType>GUITestNode</NodeType>
-			<NodeID>2016022223234106</NodeID>
+			<NodeType>DisplayNode</NodeType>
+			<NodeID>2016022323361268</NodeID>
 			<NodePos>
-				<x>2058</x>
-				<y>2067</y>
+				<x>2605</x>
+				<y>2195</y>
 			</NodePos>
 			<properties>
-				<properties>
-					<Property xsi:type="PropertyOfSingle">
-						<Name>input1</Name>
-						<Value>1</Value>
-					</Property>
-					<Property xsi:type="PropertyOfSingle">
-						<Name>input2</Name>
-						<Value>0</Value>
-					</Property>
-				</properties>
+				<properties />
 			</properties>
 		</NodeData>
 	</nodes>
 	<connections>
 		<ConnectionData>
-			<OutNodeID>2016022223234106</OutNodeID>
-			<OutNodeSocketID>3</OutNodeSocketID>
-			<InNodeID>2016022123295962</InNodeID>
-			<InNodeSocketID>1</InNodeSocketID>
+			<OutNodeID>2016022323360558</OutNodeID>
+			<OutNodeSocketID>0</OutNodeSocketID>
+			<InNodeID>2016022323361268</InNodeID>
+			<InNodeSocketID>0</InNodeSocketID>
 		</ConnectionData>
 	</connections>
 </NodeGraphData>

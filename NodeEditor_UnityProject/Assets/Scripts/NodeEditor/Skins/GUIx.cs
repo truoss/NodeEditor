@@ -27,9 +27,10 @@ namespace NodeSystem
             //skin = Resources.Load<GUISkin>("GUISkin");
         }
 
+        public Color inspectorColor;
         public Color nodeColor;
         public Color nodeSelectedColor;
-        public Color nodeHighlightColor;
+        public Color nodeHighlightColor;        
 
         //styles example
         //use: GUIx.I.toggle
@@ -39,6 +40,7 @@ namespace NodeSystem
         public GUIStyle connectionStyle { get { return skin.GetStyle("Connection"); } }
         public GUIStyle window { get { return skin.GetStyle("Window"); } }
         public GUIStyle background { get { return skin.GetStyle("Background"); } }
+        public GUIStyle whiteBox { get { return skin.GetStyle("WhiteBox"); } }
 
 
         //simplyfy new GUIContent("");

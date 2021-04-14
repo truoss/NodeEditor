@@ -48,7 +48,7 @@ namespace NodeSystem
         }
 
         public T GetValue<T>()
-        {
+        {            
             if (valueType == null)
                 valueType = typeData.Type;
             if (valueType == typeof(T))

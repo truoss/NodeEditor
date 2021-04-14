@@ -21,11 +21,17 @@ namespace NodeSystem
 
     public class Connection
     {
-        ConnectionData data;
+        //ConnectionData data;
 
         public string ID;
         public SocketOut startSocket;
         public SocketIn endSocket;
+
+        public void PushValue<T>()
+        {
+            Debug.LogWarning("PushValue: " + startSocket.GetValue<T>().ToString());
+            endSocket.SetValue(startSocket.GetValue<T>());
+        }
 
 #if UNITY_EDITOR
         public virtual void DrawConnection()

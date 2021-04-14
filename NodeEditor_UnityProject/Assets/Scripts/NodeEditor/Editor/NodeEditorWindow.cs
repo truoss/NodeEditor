@@ -35,8 +35,8 @@ namespace NodeSystem
         private static void OnScriptsReloaded()
         {
             Debug.LogWarning("Reload from XML...");
-            if(NodeEditor.NodeGraphName != null || NodeEditor.NodeGraphName != "")
-                ImportGraphFromXML(NodeEditor.NodeGraphName);
+            //if(NodeEditor.NodeGraphName != null || NodeEditor.NodeGraphName != "")
+                //ImportGraphFromXML(NodeEditor.NodeGraphName);
         }
 
         [ContextMenu("CalcNodeOrder")]
@@ -44,8 +44,8 @@ namespace NodeSystem
         {
             if (Graph != null)
             {
-                NodeProcessor.Graph = Graph;
-                NodeProcessor.CalculateNodeOrder();
+                //NodeProcessor.Graph = Graph;
+                NodeProcessor.CalculateNodeOrder(Graph);
             }
         }
 
@@ -264,7 +264,9 @@ namespace NodeSystem
             //Debug.LogWarning(sideWindowRect);
             try
             {
-                GUILayout.BeginArea(sideWindowRect, GUI.skin.box);
+                GUI.color = GUIx.I.inspectorColor;
+                GUILayout.BeginArea(sideWindowRect, GUIx.I.whiteBox);
+                GUI.color = Color.white;
                 //DrawSideWindow();      
                 if (Graph == null)
                     StatusMsg = "nothing loaded!";
@@ -325,6 +327,13 @@ namespace NodeSystem
                 if (GUILayout.Button("Calc Order"))
                 {
                     CalculateNodeOrder();
+                }
+                GUI.enabled = true;
+
+                GUI.enabled = Graph != null;
+                if (GUILayout.Button("Process Nodes"))
+                {                    
+                    NodeProcessor.ProcessNodes(Graph);
                 }
                 GUI.enabled = true;
 
@@ -422,9 +431,9 @@ namespace NodeSystem
                     GenericMenu menu = new GenericMenu();
 
                     menu.AddItem(new GUIContent("Add Test Node"), false, ContextCallback, "GUITestNode");
-                    //menu.AddItem(new GUIContent("Add Output Node"), false, ContextCallback, "outputNode");
-                    //menu.AddItem(new GUIContent("Add Calculation Node"), false, ContextCallback, "calcNode");
-                    //menu.AddItem(new GUIContent("Add Comparison Node"), false, ContextCallback, "compNode");
+                    menu.AddItem(new GUIContent("Add Display Node"), false, ContextCallback, "DisplayNode");
+                    menu.AddItem(new GUIContent("Add Math Node"), false, ContextCallback, "MathNode");
+                    menu.AddItem(new GUIContent("Add Float Input Node"), false, ContextCallback, "FloatNode");
 
                     menu.ShowAsContext();
                 }
@@ -563,6 +572,27 @@ namespace NodeSystem
             if (clb.Equals("GUITestNode"))
             {
                 var node = CreateInstance<GUITestNode>();//new GUITestNode();
+                node.ID = NodeEditor.CreateID();
+                node.Create(NodeEditor.ScreenToGUIPos(NodeEditor.mousePos));
+                Graph.nodes.Add(node);
+            }
+            else if (clb.Equals("MathNode"))
+            {
+                var node = CreateInstance<MathNode>();//new GUITestNode();
+                node.ID = NodeEditor.CreateID();
+                node.Create(NodeEditor.ScreenToGUIPos(NodeEditor.mousePos));
+                Graph.nodes.Add(node);
+            }
+            else if (clb.Equals("FloatNode"))
+            {
+                var node = CreateInstance<FloatNode>();//new GUITestNode();
+                node.ID = NodeEditor.CreateID();
+                node.Create(NodeEditor.ScreenToGUIPos(NodeEditor.mousePos));
+                Graph.nodes.Add(node);
+            }
+            else if (clb.Equals("DisplayNode"))
+            {
+                var node = CreateInstance<DisplayNode>();//new GUITestNode();
                 node.ID = NodeEditor.CreateID();
                 node.Create(NodeEditor.ScreenToGUIPos(NodeEditor.mousePos));
                 Graph.nodes.Add(node);
